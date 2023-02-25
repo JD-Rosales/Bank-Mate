@@ -23,6 +23,7 @@ class User extends Authenticatable
         'last_name',
         'mobile_number',
         'pin',
+        'type_id',
         'recovery_code',
         'email',
         'password',

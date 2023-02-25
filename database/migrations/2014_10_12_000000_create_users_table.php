@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('type_id')->references('id')->on('user_types')->onDelete('cascade');
             $table->string('mobile_number');
             $table->string('pin');
-            $table->string('recovery_code');
+            $table->string('recovery_code')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
