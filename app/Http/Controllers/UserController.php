@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class UserController extends Controller
@@ -16,7 +17,7 @@ class UserController extends Controller
 			'first_name' => 'required|max:30',
 			'middle_name' => 'required|max:30',
 			'last_name' => 'required|max:30',
-			'mobile_number' => 'required|max:20',
+			'mobile_number' => 'required|size:11|unique:users,mobile_number',
 			'email' =>
 			[
 				'required',
@@ -40,7 +41,7 @@ class UserController extends Controller
 			'last_name' => $request->last_name,
 			'mobile_number' => $request->mobile_number,
 			'email' => $request->email,
-			'pin' => $request->pin,
+			'pin' => Hash::make($request->pin),
 			'type_id' => $request->type_id,
 			'password' => Hash::make($request->password),
 		]);
@@ -53,11 +54,29 @@ class UserController extends Controller
 
 	public function login(Request $request)
 	{
-		$token = $request->bearerToken();
-
-		return response()->json([
-			'data' => $request->all(),
-			'message' => "test message"
+		$validator = Validator::make($request->all(), [
+			'email' => 'required',
+			'password' => 'required'
 		]);
+
+		if ($validator->fails()) {
+			return response()->json([
+				'message' => $validator->errors()->first(),
+			], 422);
+		}
+
+		$credentials = $request->only('email', 'password');
+
+		if (Auth::attempt($credentials)) {
+			$token = $request->user()->createToken($request->email);
+
+			return response()->json([
+				'token' => $token->plainTextToken,
+			]);
+		} else {
+			return response([
+				'message' => 'Invalid email or password.'
+			], 403);
+		}
 	}
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->unsignedBigInteger('type_id');
             $table->foreign('type_id')->references('id')->on('user_types')->onDelete('cascade');
-            $table->string('mobile_number');
+            $table->string('mobile_number')->unique();
             $table->string('pin');
             $table->string('recovery_code')->nullable();
             $table->string('email')->unique();
